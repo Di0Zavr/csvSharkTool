@@ -40,7 +40,7 @@ def main():
             packet.tcp.srcport,
             packet.ip.dst,
             packet.tcp.dstport,
-            packet.tcp.hdr_len + packet.tcp.len
+            int(packet.tcp.hdr_len) + int(packet.tcp.len)
         )
         if hasattr(packet.tcp, 'payload'):
             package.payload = packet.tcp.payload.replace(':', '')
@@ -60,13 +60,13 @@ def main():
             valid_streams[stream_id] = streams[stream_id]
 
     output = open(f'{output_file}', 'w')
-    column_index = 'n,src_ip,sport,dst_ip,dport,port'
+    column_index = 'n,src_ip,sport,dst_ip,dport,proto'
     for i in range(stop_index):
         column_index += f',payload_bytes_{i}'
     for i in range(stop_index):
         column_index += f',direction_{i}'
     for i in range(stop_index):
-        column_index += f',pkt_len{i}'
+        column_index += f',pkt_len_{i}'
     output.write(column_index + '\n')
 
     for stream_id in valid_streams.keys():
