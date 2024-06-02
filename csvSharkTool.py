@@ -1,6 +1,5 @@
 import pyshark
 import sys
-import multiprocessing
 
 # validate arguments
 input_file = sys.argv[1]
@@ -61,17 +60,26 @@ def main():
             valid_streams[stream_id] = streams[stream_id]
 
     output = open(f'{output_file}', 'w')
+    column_index = 'n,src_ip,sport,dst_ip,dport,port'
+    for i in range(stop_index):
+        column_index += f',payload_bytes_{i}'
+    for i in range(stop_index):
+        column_index += f',direction_{i}'
+    for i in range(stop_index):
+        column_index += f',pkt_len{i}'
+    output.write(column_index + '\n')
+
     for stream_id in valid_streams.keys():
         stream = streams[stream_id]
         output.write(f'{stream_id},{stream[0].source_ip},{stream[0].source_port},'
                      f'{stream[0].destination_ip},{stream[0].destination_port},6')
         for packet in streams[stream_id]:
+            output.write(f',{packet.payload}')
+        for packet in streams[stream_id]:
             if packet.source_ip == streams[stream_id][0].source_ip:
                 output.write(f',1')
             else:
                 output.write(f',-1')
-        for packet in streams[stream_id]:
-            output.write(f',{packet.payload}')
         for packet in streams[stream_id]:
             output.write(f',{packet.packet_len}')
         output.write('\n')
